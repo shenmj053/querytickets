@@ -1,0 +1,7 @@
+.DS_Store
+*.pyc
+*.pyo
+*.sqlite
+*.db
+venv
+.idea/
