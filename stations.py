@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 stations ={
     '一间堡': 'YJT',
     '一面坡': 'YPB',
