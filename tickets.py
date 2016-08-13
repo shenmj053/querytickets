@@ -67,7 +67,7 @@ def hc_tickets():
         to_station = stations[to_station]
         changed_station = stations[changed_station]
     else:
-        abort(404)
+        abort(400)
 
     url1 = 'https://kyfw.12306.cn/otn/lcxxcx/query?purpose_codes=ADULT&queryDate={}&from_station={}&to_station={}'. \
         format(date, from_station, changed_station)
@@ -88,7 +88,7 @@ def hc_tickets():
                 format(date, changed_station, to_station)
             r2 = requests.get(url2, verify=False)
             if r2.json() == -1:
-                abort(404)
+                abort(400)
             contents_2 = r2.json()['data']['datas']
 
             for content in contents_2:
@@ -126,6 +126,11 @@ def hc_tickets():
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+@app.errorhandler(400)
+def bad_request(error):
+    return make_response(jsonify({'error': 'Please check your query param format'}), 400)
 
 
 if __name__ == '__main__':
