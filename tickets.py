@@ -30,8 +30,14 @@ name = [
 def zd_tickets():
     tickets = []
     date = request.args.get('Date')
-    from_station = stations[request.args.get('from')]
-    to_station = stations[request.args.get('to')]
+    from_station = request.args.get('from')
+    to_station = request.args.get('to')
+    if from_station in stations.keys() and to_station in stations.keys():
+        from_station = stations[from_station]
+        to_station = stations[to_station]
+    else:
+        abort(404)
+
     url = 'https://kyfw.12306.cn/otn/lcxxcx/query?purpose_codes=ADULT&queryDate={}&from_station={}&to_station={}'.\
         format(date, from_station, to_station)
     r = requests.get(url, verify=False)
@@ -53,9 +59,16 @@ def hc_tickets():
     tickets_1 = []
     tickets_2 = []
     date = request.args.get('Date')
-    from_station = stations[request.args.get('from')]
-    to_station = stations[request.args.get('to')]
-    changed_station = stations[request.args.get('change')]
+    from_station = request.args.get('from')
+    to_station = request.args.get('to')
+    changed_station = request.args.get('change')
+    if from_station in stations.keys() and to_station in stations.keys() and changed_station in stations.keys():
+        from_station = stations[from_station]
+        to_station = stations[to_station]
+        changed_station = stations[changed_station]
+    else:
+        abort(404)
+
     url1 = 'https://kyfw.12306.cn/otn/lcxxcx/query?purpose_codes=ADULT&queryDate={}&from_station={}&to_station={}'. \
         format(date, from_station, changed_station)
 
@@ -113,6 +126,7 @@ def hc_tickets():
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

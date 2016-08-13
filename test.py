@@ -15,5 +15,10 @@ class APITestCase(unittest.TestCase):
         r = requests.get(url)
         self.assertTrue(r.status_code == 200)
 
+    def test_error(self):
+        url = 'http://localhost:5000/hc?purpose_codes=ADULT&Date=2016-08-15&from=beijing&to=hangzhou&change=shanghai'
+        r = requests.get(url)
+        self.assertTrue(r.status_code == 404)
+
 if __name__ == '__main__':
     unittest.main()
