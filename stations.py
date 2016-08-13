@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-stations ={
+
+# resource was get from https://kyfw.12306.cn/otn/resources/js/framework/station_name.js?station_version=1.8955,
+# and changed it into dict
+
+stations = {
     '一间堡': 'YJT',
     '一面坡': 'YPB',
     '一面山': 'YST',

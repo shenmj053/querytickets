@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, make_response, abort
 import requests
 from stations import stations
-app = Flask(__name__)
 
+app = Flask(__name__)
 
 name = [
     'station_train_code',
@@ -40,6 +40,7 @@ def zd_tickets():
         abort(404)
     contents = r.json()['data']['datas']
 
+    # get out the information that we want in the contents dict.
     for content in contents:
         ticket = {key: content[key] for key in name}
         tickets.append(ticket)
