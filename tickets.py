@@ -36,20 +36,23 @@ def zd_tickets():
         from_station = stations[from_station]
         to_station = stations[to_station]
     else:
-        abort(404)
+        abort(400)
 
     url = 'https://kyfw.12306.cn/otn/lcxxcx/query?purpose_codes=ADULT&queryDate={}&from_station={}&to_station={}'.\
         format(date, from_station, to_station)
     r = requests.get(url, verify=False)
-    # if the url param was supplied incorrectly, 12306 would return -1 of int type.
+    # if the url param 'date'was supplied incorrectly, 12306 would return -1 of int type.
     if r.json() == -1:
-        abort(404)
-    contents = r.json()['data']['datas']
+        abort(400)
+    if 'datas' in r.json()['data']:
+        contents = r.json()['data']['datas']
 
-    # get out the information that we want in the contents dict.
-    for content in contents:
-        ticket = {key: content[key] for key in name}
-        tickets.append(ticket)
+        # get out the information that we want in the contents dict.
+        for content in contents:
+            ticket = {key: content[key] for key in name}
+            tickets.append(ticket)
+    else:
+        abort(404)
 
     return jsonify({'tickets': tickets})
 
@@ -71,15 +74,19 @@ def hc_tickets():
 
     url1 = 'https://kyfw.12306.cn/otn/lcxxcx/query?purpose_codes=ADULT&queryDate={}&from_station={}&to_station={}'. \
         format(date, from_station, changed_station)
-
     r1 = requests.get(url1, verify=False)
-    if r1.json() == -1:
-        abort(404)
-    contents_1 = r1.json()['data']['datas']
 
-    for content in contents_1:
-        ticket = {key: content[key] for key in name}
-        tickets_1.append(ticket)
+    if r1.json() == -1:
+        abort(400)
+
+    if 'datas' in r1.json()['data']:
+        contents_1 = r1.json()['data']['datas']
+
+        for content in contents_1:
+            ticket = {key: content[key] for key in name}
+            tickets_1.append(ticket)
+    else:
+        abort(404)
 
     for ticket in tickets_1:
         if int(ticket['lishi'][:2]) + int(ticket['start_time'][:2]) < 24:  # TODO
@@ -87,38 +94,48 @@ def hc_tickets():
                    '&queryDate={}&from_station={}&to_station={}'. \
                 format(date, changed_station, to_station)
             r2 = requests.get(url2, verify=False)
+
             if r2.json() == -1:
                 abort(400)
-            contents_2 = r2.json()['data']['datas']
 
-            for content in contents_2:
-                ticket = {key: content[key] for key in name}
-                tickets_2.append(ticket)
+            if 'datas' in r2.json()['data']:
+                contents_2 = r2.json()['data']['datas']
 
-            for x in tickets_1:
-                x['changed_ticket'] = [y for y in tickets_2 if
-                                       1 < int(y['start_time'][:2]) - int(x['arrive_time'][:2]) < 3]
+                for content in contents_2:
+                    ticket = {key: content[key] for key in name}
+                    tickets_2.append(ticket)
+
+                if tickets_2:
+                    for x in tickets_1:
+                        x['changed_ticket'] = [y for y in tickets_2 if
+                                               1 < int(y['start_time'][:2]) - int(x['arrive_time'][:2]) < 3]
+            else:
+                abort(404)
 
         else:
             # if the first train arrived at next day, we add one day to the queryDate param.
             date2 = str(datetime.strptime(date, '%Y-%m-%d') + timedelta(days=1))[:10]
+
+            # TODO: the following repeatedly codes should be moved to a helper method.
             url2 = 'https://kyfw.12306.cn/otn/lcxxcx/query?purpose_codes=ADULT' \
                    '&queryDate={}&from_station={}&to_station={}'. \
                 format(date2, changed_station, to_station)
-
-            # TODO: the following repeatedly codes should be moved to a helper method.
             r2 = requests.get(url2, verify=False)
+
             if r2.json() == -1:
-                abort(404)
-            contents_2 = r2.json()['data']['datas']
+                abort(400)
 
-            for content in contents_2:
-                ticket = {key: content[key] for key in name}
-                tickets_2.append(ticket)
+            if 'datas' in r2.json()['data']:
+                contents_2 = r2.json()['data']['datas']
 
-            for x in tickets_1:
-                x['changed_ticket'] = [y for y in tickets_2 if
-                                       1 < int(y['start_time'][:2]) - int(x['arrive_time'][:2]) < 3]
+                for content in contents_2:
+                    ticket = {key: content[key] for key in name}
+                    tickets_2.append(ticket)
+
+                if tickets_2:
+                    for x in tickets_1:
+                        x['changed_ticket'] = [y for y in tickets_2 if
+                                           1 < int(y['start_time'][:2]) - int(x['arrive_time'][:2]) < 3]
 
     return jsonify({'tickets': tickets_1})
 
