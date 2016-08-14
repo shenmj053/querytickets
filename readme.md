@@ -19,9 +19,9 @@
 
        import requests
 
-       url = 'http://localhost:5000/zd?purpose_codes=ADULT&Date=2016-08-13&from=北京&to=杭州'
+       url = 'http://localhost:5000/zd?Date=2016-08-30&from=北京&to=杭州'
        # or use
-       # url = 'http://localhost:5000/hc?purpose_codes=ADULT&Date=2016-08-15&from=北京&to=杭州&change=上海'
+       # url = 'http://localhost:5000/hc?Date=2016-08-30&from=北京&to=杭州&change=上海'
         
        req = request.get(url)
        contents = req.json()
